@@ -64,12 +64,32 @@ App = {
 
           var propertyTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + value + "</td><td>" + month + "/" + year + "</td><td>" + address +"</td></tr>";
           property_last_payment.append(propertyTemplate);
+
+          var propertyOption = "<option value='" + id + "'> " + name + "</option>";
+          propertySelect.append(propertyOption);
         });
       }
       loader.hide();
       content.show();
     }).catch(function(error) {
       console.warn(error);
+    });
+  },
+
+  sendValue: function () {
+    var property_id = $('#propertySelect').val();
+    var payment_amout = $('#propertyValue').val();
+    var date = new Date();
+    var payment_month = date.getMonth() + 1;
+    var payment_year = date.getFullYear();
+        App.contracts.Property.deployed().then(function (instance) {
+      return instance.payment(property_id, payment_amout, payment_month, payment_year, { from: App.account });
+    }).then(function(result) {
+      $("#loader").text("Pagamento computado");
+      $("#content").hide();
+      $("#loader").show();
+    }).catch(function (err) {
+      console.log(err);
     });
   }
 };
