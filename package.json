@@ -13,6 +13,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "lite-server": "^2.3.0"
+    "lite-server": "^2.3.0",
+    "mocha": "^6.2.2"
+  },
+  "dependencies": {
+    "chai": "^4.2.0"
   }
 }

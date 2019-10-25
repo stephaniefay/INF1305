@@ -1,64 +1,74 @@
 App = {
   web3Provider: null,
   contracts: {},
+  account: '0x0',
 
-  init: async function() {
-    // Load pets.
-    $.getJSON('../pets.json', function(data) {
-      var petsRow = $('#petsRow');
-      var petTemplate = $('#petTemplate');
-
-      for (i = 0; i < data.length; i ++) {
-        petTemplate.find('.panel-title').text(data[i].name);
-        petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-breed').text(data[i].breed);
-        petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-location').text(data[i].location);
-        petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
-
-        petsRow.append(petTemplate.html());
-      }
-    });
-
-    return await App.initWeb3();
-  },
+  init: function () {
+    return App.initWeb3();
+  } ,
 
   initWeb3: async function() {
-    /*
-     * Replace me...
-     */
-
+    if (typeof web3 !== 'undefined') {
+      App.web3Provider = web3.currentProvider;
+      web3 = new Web3(web3.currentProvider);
+    } else {
+      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
+      web3 = new Web3(App.web3Provider);
+    }
     return App.initContract();
   },
 
   initContract: function() {
-    /*
-     * Replace me...
-     */
-
-    return App.bindEvents();
+    $.getJSON("Property.json", function (property) {
+      App.contracts.Property = TruffleContract(property);
+      App.contracts.Property.setProvider(App.web3Provider);
+      return App.render();
+    });
   },
 
-  bindEvents: function() {
-    $(document).on('click', '.btn-adopt', App.handleAdopt);
-  },
+  render: function() {
+    var propertyInstance;
+    var loader = $("#loader");
+    var content = $("#content");
 
-  markAdopted: function(adopters, account) {
-    /*
-     * Replace me...
-     */
-  },
+    loader.show();
+    content.hide();
 
-  handleAdopt: function(event) {
-    event.preventDefault();
+    // Load account data
+    web3.eth.getCoinbase(function(err, account) {
+      if (err === null) {
+        App.account = account;
+        $("#accountAddress").html("Your Account: " + account);
+      }
+    });
 
-    var petId = parseInt($(event.target).data('id'));
+    // Load contract data
+    App.contracts.Property.deployed().then(function(instance) {
+      propertyInstance = instance;
+      return propertyInstance.propertiesCount();
+    }).then(function(propertiesCount) {
+      var property_last_payment = $("#candidatesResults");
+      property_last_payment.empty();
 
-    /*
-     * Replace me...
-     */
+      var propertySelect = $('#propertySelect');
+      propertySelect.empty();
+
+      for (var i = 1; i <= propertiesCount; i++) {
+        propertyInstance.properties(i).then(function(property) {
+          var id = property[0];
+          var name = property[1];
+          var voteCount = property[2];
+
+          var propertyTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
+          property_last_payment.append(propertyTemplate);
+        });
+      }
+      loader.hide();
+      content.show();
+    }).catch(function(error) {
+      console.warn(error);
+    });
   }
-
 };
 
 $(function() {
