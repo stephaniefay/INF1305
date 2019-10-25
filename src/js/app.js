@@ -47,7 +47,7 @@ App = {
       propertyInstance = instance;
       return propertyInstance.propertiesCount();
     }).then(function(propertiesCount) {
-      var property_last_payment = $("#candidatesResults");
+      var property_last_payment = $("#propertiesPayments");
       property_last_payment.empty();
 
       var propertySelect = $('#propertySelect');
@@ -57,9 +57,12 @@ App = {
         propertyInstance.properties(i).then(function(property) {
           var id = property[0];
           var name = property[1];
-          var voteCount = property[2];
+          var value = property[2];
+          var month = property[3];
+          var year = property[4];
+          var address = property[5];
 
-          var propertyTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
+          var propertyTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + value + "</td><td>" + month + "/" + year + "</td><td>" + address +"</td></tr>";
           property_last_payment.append(propertyTemplate);
         });
       }
