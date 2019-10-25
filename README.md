@@ -21,13 +21,17 @@ Ferramentas utilizadas:
 
 Para a execução do trabalho
 > npm install
+
 > npm run dev
 
 Para o deploy em prompt usando Truffle
 > truffle migrate --reset
+
 > truffle console
 
 Visualização do deploy via Truffle
 > Property.deployed().then(function (instance) { app = instance })
+
 > web3.eth.getAccounts().then(function (account) { acc = account[0] })
+
 > app.payment(id, amount, month, year, { from: acc })
